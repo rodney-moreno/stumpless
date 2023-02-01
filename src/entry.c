@@ -894,6 +894,38 @@ stumpless_set_entry_param_by_index( struct stumpless_entry *entry,
   return entry;
 }
 
+STUMPLESS_PUBLIC_FUNCTION
+struct stumpless_entry *
+stumpless_set_entry_message_str_w( struct stumpless_entry *entry,
+                                   const wchar_t *message ) {
+  char *new_message;
+  size_t new_message_length;
+  const char *old_message;
+
+  VALIDATE_ARG_NOT_NULL( entry );
+
+  if( message ) {
+    new_message = config_copy_wstring_to_cstring(new_message, &new_message_length);
+    if( !new_message ) {
+      return NULL;
+    }
+  } else {
+    new_message = NULL;
+    new_message_length = 0;
+  }
+
+  lock_entry( entry );
+  old_message = entry->message;
+  entry->message = new_message;
+  entry->message_length = new_message_length;
+  unlock_entry( entry );
+
+  free_mem( old_message );
+  clean_error( );
+  
+  return entry;
+}
+
 struct stumpless_entry *
 stumpless_set_entry_param_value_by_index( struct stumpless_entry *entry,
                                           size_t element_index,
